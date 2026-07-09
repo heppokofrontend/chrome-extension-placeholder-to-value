@@ -12,6 +12,24 @@ const setNativeValue = ({ field, value }: { field: TextField; value: string }) =
   Object.getOwnPropertyDescriptor(prototype, 'value')?.set?.call(field, value);
 };
 
+const resolveTarget = (target: EventTarget | null | undefined): TextField | null => {
+  if (target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement) {
+    return target;
+  }
+  return null;
+};
+
+const resolveCurrentTextField = (): TextField | null => {
+  // content script が右クリック後に(activeTab 経由で)注入された場合、その右クリックの
+  // contextmenu イベントは誰にも拾われず currentTextField が空のままになる。
+  // 右クリックされた要素は大抵フォーカスを持つため、document.activeElement で救済する。
+  if (currentTextField !== null) {
+    return currentTextField;
+  }
+
+  return resolveTarget(document.activeElement);
+};
+
 const onWorkerMessage = (
   message: unknown,
   _sender: chrome.runtime.MessageSender,
@@ -35,15 +53,17 @@ const onWorkerMessage = (
     return false;
   }
 
-  if (currentTextField === null || currentTextField.placeholder === '') {
+  const textField = resolveCurrentTextField();
+
+  if (textField === null || textField.placeholder === '') {
     sendResponse(false);
     return false;
   }
 
-  const { placeholder } = currentTextField;
+  const { placeholder } = textField;
 
-  setNativeValue({ field: currentTextField, value: currentTextField.value + placeholder });
-  currentTextField.dispatchEvent(
+  setNativeValue({ field: textField, value: textField.value + placeholder });
+  textField.dispatchEvent(
     new InputEvent('input', {
       bubbles: true,
       cancelable: true,
@@ -51,17 +71,10 @@ const onWorkerMessage = (
       data: placeholder,
     }),
   );
-  currentTextField.dispatchEvent(new Event('change', { bubbles: true }));
+  textField.dispatchEvent(new Event('change', { bubbles: true }));
 
   sendResponse(true);
   return false;
-};
-
-const resolveTarget = (target: EventTarget | null | undefined): TextField | null => {
-  if (target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement) {
-    return target;
-  }
-  return null;
 };
 
 const onContextMenu = (event: MouseEvent) => {
