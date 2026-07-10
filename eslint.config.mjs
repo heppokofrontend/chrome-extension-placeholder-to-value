@@ -4,7 +4,7 @@ import prettier from 'eslint-config-prettier';
 import globals from 'globals';
 
 export default [
-  { ignores: ['package/**'] },
+  { ignores: ['package/**', 'eslint.config.mjs', 'esbuild.config.mjs'] },
   js.configs.recommended,
   ...tseslint.configs.strictTypeChecked,
   {
