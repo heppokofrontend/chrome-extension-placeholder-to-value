@@ -67,4 +67,30 @@ describe('ensureSelectionInsideElement', () => {
     const selection = window.getSelection();
     expect(div.contains(selection?.anchorNode ?? null)).toBe(true);
   });
+
+  it('選択範囲が要素をまたぎ focusNode だけ要素外にある場合も要素末尾に補正する', () => {
+    document.body.innerHTML = '<div contenteditable="true">hello</div><p>other</p>';
+    const div = document.querySelector('div');
+    const other = document.querySelector('p');
+    if (div === null || other === null) {
+      throw new Error('elements not found');
+    }
+
+    const textNode = div.firstChild;
+    const otherTextNode = other.firstChild;
+    if (textNode === null || otherTextNode === null) {
+      throw new Error('text node not found');
+    }
+
+    // anchorNode は要素内、focusNode は要素外という「またぐ」選択範囲を作る
+    const selection = window.getSelection();
+    selection?.removeAllRanges();
+    selection?.setBaseAndExtent(textNode, 0, otherTextNode, 1);
+
+    ensureSelectionInsideElement(div);
+
+    expect(div.contains(selection?.anchorNode ?? null)).toBe(true);
+    expect(div.contains(selection?.focusNode ?? null)).toBe(true);
+    expect(selection?.getRangeAt(0).collapsed).toBe(true);
+  });
 });

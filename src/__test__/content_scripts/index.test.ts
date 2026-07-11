@@ -203,4 +203,57 @@ describe('content_scripts/index (onWorkerMessage integration)', () => {
 
     expect(sendResponse).toHaveBeenCalledWith(false);
   });
+
+  it('追跡中の要素が focusout すると追跡をクリアし、別要素にフォーカスが移っていればそちらに挿入する', async () => {
+    const onWorkerMessage = await loadContentScript();
+
+    document.body.innerHTML = `
+      <input id="tracked" placeholder="tracked-value" value="" />
+      <input id="focused" placeholder="focused-value" value="" />
+    `;
+    const tracked = document.querySelector<HTMLInputElement>('#tracked');
+    const focused = document.querySelector<HTMLInputElement>('#focused');
+    if (tracked === null || focused === null) {
+      throw new Error('input not found');
+    }
+
+    tracked.dispatchEvent(new MouseEvent('contextmenu', { bubbles: true }));
+
+    // 右クリック後、メニュークリック前に追跡要素からフォーカスが外れ、
+    // 別の要素にフォーカスが移ったケースを再現する
+    tracked.dispatchEvent(new FocusEvent('focusout', { bubbles: true }));
+    focused.focus();
+
+    const sendResponse = vi.fn();
+    onWorkerMessage({ menuItemId: MENU_ITEM_ID }, {}, sendResponse);
+
+    expect(tracked.value).toBe('');
+    expect(focused.value).toBe('focused-value');
+    expect(sendResponse).toHaveBeenCalledWith(true);
+  });
+
+  it('追跡中の要素以外の focusout では追跡をクリアしない', async () => {
+    const onWorkerMessage = await loadContentScript();
+
+    document.body.innerHTML = `
+      <input id="tracked" placeholder="tracked-value" value="" />
+      <input id="other" value="" />
+    `;
+    const tracked = document.querySelector<HTMLInputElement>('#tracked');
+    const other = document.querySelector<HTMLInputElement>('#other');
+    if (tracked === null || other === null) {
+      throw new Error('input not found');
+    }
+
+    tracked.dispatchEvent(new MouseEvent('contextmenu', { bubbles: true }));
+
+    // 追跡対象ではない無関係な要素の focusout は追跡をクリアしないことを確認する
+    other.dispatchEvent(new FocusEvent('focusout', { bubbles: true }));
+
+    const sendResponse = vi.fn();
+    onWorkerMessage({ menuItemId: MENU_ITEM_ID }, {}, sendResponse);
+
+    expect(tracked.value).toBe('tracked-value');
+    expect(sendResponse).toHaveBeenCalledWith(true);
+  });
 });

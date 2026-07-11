@@ -10,7 +10,11 @@ export const ensureSelectionInsideElement = (element: HTMLElement) => {
     return;
   }
 
-  if (selection.rangeCount === 0 || !element.contains(selection.anchorNode)) {
+  if (
+    selection.rangeCount === 0 ||
+    !element.contains(selection.anchorNode) ||
+    !element.contains(selection.focusNode)
+  ) {
     const range = document.createRange();
     range.selectNodeContents(element);
     range.collapse(false);
