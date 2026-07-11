@@ -6,6 +6,9 @@ chrome.runtime.onInstalled.addListener(() => {
     id: MENU_ITEM_ID,
     title: chrome.i18n.getMessage('menuItemTitle'),
     contexts: ['editable'],
+    // chrome:// や拡張機能ページ(chrome-extension://)には content script を注入できないため、
+    // メニュー自体を表示しない。表示だけして押しても無反応、という状態を避ける。
+    documentUrlPatterns: ['http://*/*', 'https://*/*'],
   });
 });
 
