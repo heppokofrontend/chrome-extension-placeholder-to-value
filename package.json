@@ -31,14 +31,15 @@
     "url": "git+https://github.com/heppokofrontend/chrome-extension-placeholder-to-value.git"
   },
   "scripts": {
-    "build": "npm run typecheck && node esbuild.config.mjs",
+    "build": "npm run type-check && node esbuild.config.mjs",
     "dev": "node esbuild.config.mjs --watch",
-    "format": "prettier . --write",
-    "format:check": "prettier . --check",
-    "lint": "eslint src",
+    "format-fix": "prettier . --write",
+    "format-check": "prettier . --check",
+    "lint-check": "eslint src",
+    "lint-fix": "eslint src --fix",
     "start": "npm run dev",
     "test": "vitest run",
     "test:watch": "vitest",
-    "typecheck": "tsc"
+    "type-check": "tsc"
   }
 }
