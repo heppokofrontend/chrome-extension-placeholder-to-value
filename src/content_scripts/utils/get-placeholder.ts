@@ -14,10 +14,11 @@ const getDescribedByText = (target: HTMLElement) => {
 };
 
 export const getPlaceholder = (target: HTMLElement) => {
+  const isNative = target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement;
   const candidates = [
     target.getAttribute('placeholder'),
     target.getAttribute('aria-placeholder'),
-    getDescribedByText(target),
+    isNative ? '' : getDescribedByText(target),
   ];
 
   for (const candidate of candidates) {

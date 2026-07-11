@@ -108,4 +108,43 @@ describe('getPlaceholder', () => {
 
     expect(getPlaceholder(div)).toBe('');
   });
+
+  it('input は placeholder も aria-placeholder も無ければ aria-describedby を見ずに空文字を返す', () => {
+    document.body.innerHTML = `
+      <input aria-describedby="hint" />
+      <span id="hint">ヒントの本文</span>
+    `;
+    const input = document.querySelector('input');
+    if (input === null) {
+      throw new Error('input not found');
+    }
+
+    expect(getPlaceholder(input)).toBe('');
+  });
+
+  it('textarea は placeholder も aria-placeholder も無ければ aria-describedby を見ずに空文字を返す', () => {
+    document.body.innerHTML = `
+      <textarea aria-describedby="hint"></textarea>
+      <span id="hint">ヒントの本文</span>
+    `;
+    const textarea = document.querySelector('textarea');
+    if (textarea === null) {
+      throw new Error('textarea not found');
+    }
+
+    expect(getPlaceholder(textarea)).toBe('');
+  });
+
+  it('input は aria-placeholder が空白のみでも aria-describedby を見ずに空文字を返す', () => {
+    document.body.innerHTML = `
+      <input aria-placeholder="   " aria-describedby="hint" />
+      <span id="hint">ヒントの本文</span>
+    `;
+    const input = document.querySelector('input');
+    if (input === null) {
+      throw new Error('input not found');
+    }
+
+    expect(getPlaceholder(input)).toBe('');
+  });
 });
