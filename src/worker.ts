@@ -4,7 +4,7 @@ chrome.runtime.onInstalled.addListener(() => {
   chrome.contextMenus.create({
     type: 'normal',
     id: MENU_ITEM_ID,
-    title: 'placeholder into value',
+    title: chrome.i18n.getMessage('menuItemTitle'),
     contexts: ['editable'],
   });
 });
@@ -20,12 +20,7 @@ const handleMenuClick = async (menuItemId: string | number) => {
 
   const [tab] = await chrome.tabs.query({ active: true, lastFocusedWindow: true });
 
-  if (
-    tab === undefined ||
-    tab.id === undefined ||
-    tab.url === undefined ||
-    !tab.url.startsWith('http')
-  ) {
+  if (tab?.id === undefined || tab.url?.startsWith('http') !== true) {
     return;
   }
 
