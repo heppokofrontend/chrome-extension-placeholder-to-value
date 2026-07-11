@@ -72,7 +72,7 @@ describe('worker', () => {
     vi.restoreAllMocks();
   });
 
-  it('onInstalled でコンテキストメニューを http/https 限定・i18n タイトルで作成する', async () => {
+  it('onInstalled でコンテキストメニューを http/https/file 限定・i18n タイトルで作成する', async () => {
     const chromeMock = createChromeMock({ tab: { id: 1, url: 'https://example.com/' } });
     await loadWorker(chromeMock);
 
@@ -83,7 +83,7 @@ describe('worker', () => {
         id: MENU_ITEM_ID,
         title: 'placeholder into value',
         contexts: ['editable'],
-        documentUrlPatterns: ['http://*/*', 'https://*/*'],
+        documentUrlPatterns: ['http://*/*', 'https://*/*', 'file:///*'],
       }),
     );
   });
@@ -169,7 +169,7 @@ describe('worker', () => {
     expect((chromeMock as any).tabs.sendMessage).not.toHaveBeenCalled();
   });
 
-  it('タブの URL が http/https でなければ何もしない(例: chrome:// ページ)', async () => {
+  it('タブの URL が http/https/file でなければ何もしない(例: chrome:// ページ)', async () => {
     const chromeMock = createChromeMock({ tab: { id: 1, url: 'chrome://settings' } });
     await loadWorker(chromeMock);
 
@@ -177,6 +177,20 @@ describe('worker', () => {
     await flushMicrotasks();
 
     expect((chromeMock as any).tabs.sendMessage).not.toHaveBeenCalled();
+  });
+
+  it('タブの URL が file:// のローカル HTML でもメッセージを送る', async () => {
+    const chromeMock = createChromeMock({
+      tab: { id: 1, url: 'file:///Users/example/test.html' },
+    });
+    await loadWorker(chromeMock);
+
+    onClickedListener?.({ menuItemId: MENU_ITEM_ID });
+    await flushMicrotasks();
+
+    expect((chromeMock as any).tabs.sendMessage).toHaveBeenCalledWith(1, {
+      menuItemId: MENU_ITEM_ID,
+    });
   });
 
   it('タブの id が無ければ何もしない', async () => {
