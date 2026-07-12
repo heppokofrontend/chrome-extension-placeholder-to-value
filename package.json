@@ -1,7 +1,7 @@
 {
   "name": "chrome-extension-placeholder-to-value",
   "description": "Chrome extension: convert a placeholder to a value from the right-click context menu.",
-  "version": "1.1.1",
+  "version": "1.2.0",
   "author": "heppokofrontend",
   "allowScripts": {
     "esbuild@0.28.1": true
@@ -17,9 +17,11 @@
     "eslint": "10.6.0",
     "eslint-config-prettier": "10.1.8",
     "globals": "17.7.0",
+    "jsdom": "^29.1.1",
     "prettier": "3.9.0",
     "typescript": "6.0.3",
-    "typescript-eslint": "8.62.0"
+    "typescript-eslint": "8.62.0",
+    "vitest": "^4.1.10"
   },
   "homepage": "https://github.com/heppokofrontend/chrome-extension-placeholder-to-value#readme",
   "license": "MIT",
@@ -29,12 +31,15 @@
     "url": "git+https://github.com/heppokofrontend/chrome-extension-placeholder-to-value.git"
   },
   "scripts": {
-    "build": "npm run typecheck && node esbuild.config.mjs",
+    "build": "npm run type-check && node esbuild.config.mjs",
     "dev": "node esbuild.config.mjs --watch",
-    "format": "prettier . --write",
-    "format:check": "prettier . --check",
-    "lint": "eslint src",
+    "format-fix": "prettier . --write",
+    "format-check": "prettier . --check",
+    "lint-check": "eslint src",
+    "lint-fix": "eslint src --fix",
     "start": "npm run dev",
-    "typecheck": "tsc"
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "type-check": "tsc"
   }
 }

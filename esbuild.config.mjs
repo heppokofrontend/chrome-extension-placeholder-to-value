@@ -5,7 +5,10 @@ const isWatch = process.argv.includes('--watch');
 
 /** @type {esbuild.BuildOptions} */
 const options = {
-  entryPoints: ['src/worker.ts', 'src/content_scripts.ts'],
+  entryPoints: [
+    { in: 'src/worker.ts', out: 'worker' },
+    { in: 'src/content_scripts/index.ts', out: 'content_scripts' },
+  ],
   bundle: true,
   format: 'iife',
   target: 'chrome120',

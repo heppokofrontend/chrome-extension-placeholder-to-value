@@ -1,11 +1,20 @@
 import { MENU_ITEM_ID } from './constants';
 
+// content script の manifest 上の matches (http/https/file) と一致させる。
+// chrome:// や他拡張機能のページ(chrome-extension://)には content script を注入できないため、
+// それらではメニュー自体を表示しない。表示だけして押しても無反応、という状態を避ける。
+const SUPPORTED_URL_PATTERNS = ['http://*/*', 'https://*/*', 'file:///*'];
+
+const isSupportedUrl = (url: string | undefined) =>
+  url !== undefined && (url.startsWith('http') || url.startsWith('file://'));
+
 chrome.runtime.onInstalled.addListener(() => {
   chrome.contextMenus.create({
     type: 'normal',
     id: MENU_ITEM_ID,
-    title: 'placeholder into value',
+    title: chrome.i18n.getMessage('menuItemTitle'),
     contexts: ['editable'],
+    documentUrlPatterns: SUPPORTED_URL_PATTERNS,
   });
 });
 
@@ -20,12 +29,7 @@ const handleMenuClick = async (menuItemId: string | number) => {
 
   const [tab] = await chrome.tabs.query({ active: true, lastFocusedWindow: true });
 
-  if (
-    tab === undefined ||
-    tab.id === undefined ||
-    tab.url === undefined ||
-    !tab.url.startsWith('http')
-  ) {
+  if (tab?.id === undefined || !isSupportedUrl(tab.url)) {
     return;
   }
 

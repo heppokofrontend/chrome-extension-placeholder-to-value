@@ -4,5 +4,8 @@
   },
   "extDesc": {
     "message": "Convert a placeholder to a value."
+  },
+  "menuItemTitle": {
+    "message": "Convert placeholder to value"
   }
 }

@@ -30,13 +30,13 @@ jobs:
         run: npm ci
 
       - name: Type check
-        run: npm run typecheck
+        run: npm run type-check
 
       - name: Format check
-        run: npm run format:check
+        run: npm run format-check
 
       - name: Lint
-        run: npm run lint
+        run: npm run lint-check
 
       - name: Build
         run: npm run build
